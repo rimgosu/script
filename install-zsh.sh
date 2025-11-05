@@ -23,6 +23,9 @@ if [ -n "$SUDO_USER" ]; then
 fi
 
 echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
-echo "PROMPT='%n@ '$PROMPT" >> ~/.zshrc
+cat >> ~/.zshrc << 'EOF'
+PROMPT='%n@ '$PROMPT
+EOF
 
+source ~/.zshrc
 chsh -s $(which zsh)
