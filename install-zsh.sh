@@ -22,4 +22,7 @@ if [ -n "$SUDO_USER" ]; then
     chown $SUDO_USER ~/.zshrc
 fi
 
+echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
+echo "PROMPT='%n@ '$PROMPT" >> ~/.zshrc
+
 chsh -s $(which zsh)
