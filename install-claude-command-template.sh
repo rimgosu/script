@@ -28,7 +28,7 @@ done
 
 echo ""
 TOTAL=${#TIMEZONES[@]}
-read -rp "Enter number [0-$((TOTAL - 1))]: " selection
+read -rp "Enter number [0-$((TOTAL - 1))]: " selection </dev/tty
 
 # Validate input
 if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 0 ] || [ "$selection" -ge "$TOTAL" ]; then
