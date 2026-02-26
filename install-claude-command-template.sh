@@ -5,6 +5,9 @@
 
 set -e
 
+# Reconnect stdin to terminal (required for curl | bash)
+exec < /dev/tty
+
 INSTALL_DIR="$HOME/.local/bin"
 SCRIPT_NAME="cct"
 
@@ -28,7 +31,7 @@ done
 
 echo ""
 TOTAL=${#TIMEZONES[@]}
-read -rp "Enter number [0-$((TOTAL - 1))]: " selection </dev/tty
+read -rp "Enter number [0-$((TOTAL - 1))]: " selection
 
 # Validate input
 if ! [[ "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 0 ] || [ "$selection" -ge "$TOTAL" ]; then
