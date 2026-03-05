@@ -9,4 +9,7 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo usermod -aG docker $USER
-newgrp docker
+echo ""
+echo "Docker installation completed successfully."
+echo "To apply the docker group, please re-login or run:"
+echo "  newgrp docker"
