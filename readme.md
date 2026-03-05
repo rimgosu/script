@@ -15,3 +15,13 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-cl
 ```sh
 cct <description>
 ```
+
+## install-docker-ubuntu
+
+ubuntu 22.04, 24.04에서 docker 설치
+
+- install
+
+```sh
+curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-docker-ubuntu.sh | bash
+```
