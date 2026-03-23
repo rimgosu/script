@@ -22,11 +22,12 @@ if [ -n "$SUDO_USER" ]; then
     chown $SUDO_USER ~/.zshrc
 fi
 
+sudo locale-gen ko_KR.UTF-8
 echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
 cat >> ~/.zshrc << 'EOF'
 PROMPT='%n@ '$PROMPT
 EOF
 
-source ~/.zshrc
+zsh -c "source ~/.zshrc"
 echo "기본 셸을 zsh로 변경하려면 다음 명령어를 실행하세요:"
 echo "  chsh -s \$(which zsh)"
