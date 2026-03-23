@@ -1,8 +1,8 @@
 #!/bin/bash
-sudo apt-get update
-sudo apt-get install -y zsh curl git
+sudo apt update
+sudo apt install -y zsh curl git
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -28,4 +28,5 @@ PROMPT='%n@ '$PROMPT
 EOF
 
 source ~/.zshrc
-chsh -s $(which zsh)
+echo "기본 셸을 zsh로 변경하려면 다음 명령어를 실행하세요:"
+echo "  chsh -s \$(which zsh)"
