@@ -30,3 +30,4 @@ EOF
 
 zsh -c "source ~/.zshrc"
 sudo chsh -s $(which zsh) $(whoami)
+echo "zsh 설치 완료. 'exit' 후 다시 접속하면 zsh가 적용됩니다."
