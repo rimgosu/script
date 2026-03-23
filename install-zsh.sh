@@ -1,6 +1,11 @@
 #!/bin/bash
-sudo apt update
-sudo apt install -y zsh curl git
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install zsh curl git
+else
+    sudo apt update
+    sudo apt install -y zsh curl git
+fi
 
 RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -22,12 +27,18 @@ if [ -n "$SUDO_USER" ]; then
     chown $SUDO_USER ~/.zshrc
 fi
 
-sudo locale-gen ko_KR.UTF-8
+if [[ "$OSTYPE" != "darwin"* ]]; then
+    sudo locale-gen ko_KR.UTF-8
+fi
 grep -q 'LC_ALL=ko_KR.UTF-8' ~/.zshrc || echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
 grep -q "PROMPT='%n@%m '" ~/.zshrc || cat >> ~/.zshrc << 'EOF'
 PROMPT='%n@%m '$PROMPT
 EOF
 
 zsh -c "source ~/.zshrc"
-sudo chsh -s $(which zsh) $(whoami)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    chsh -s $(which zsh)
+else
+    sudo chsh -s $(which zsh) $(whoami)
+fi
 echo "zsh 설치 완료. 'exit' 후 다시 접속하면 zsh가 적용됩니다."
