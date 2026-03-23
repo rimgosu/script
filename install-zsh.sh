@@ -24,8 +24,8 @@ fi
 
 sudo locale-gen ko_KR.UTF-8
 grep -q 'LC_ALL=ko_KR.UTF-8' ~/.zshrc || echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
-grep -q "PROMPT='%m@ '" ~/.zshrc || cat >> ~/.zshrc << 'EOF'
-PROMPT='%m@ '$PROMPT
+grep -q "PROMPT='%n@%m '" ~/.zshrc || cat >> ~/.zshrc << 'EOF'
+PROMPT='%n@%m '$PROMPT
 EOF
 
 zsh -c "source ~/.zshrc"
