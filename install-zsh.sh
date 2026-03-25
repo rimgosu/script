@@ -31,6 +31,7 @@ if [[ "$OSTYPE" != "darwin"* ]]; then
     sudo locale-gen ko_KR.UTF-8
 fi
 grep -q 'LC_ALL=ko_KR.UTF-8' ~/.zshrc || echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
+grep -q 'GH_AUTH_TOKEN_STORE=file' ~/.zshrc || echo 'export GH_AUTH_TOKEN_STORE=file' >> ~/.zshrc  
 grep -q "PROMPT='%n@%m '" ~/.zshrc || cat >> ~/.zshrc << 'EOF'
 PROMPT='%n@%m '$PROMPT
 EOF
