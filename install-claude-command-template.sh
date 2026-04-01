@@ -20,29 +20,64 @@ cat > "$INSTALL_DIR/$SCRIPT_NAME" << 'SCRIPT_EOF'
 
 # cct - Claude Command Template creator
 
+MODE="requirement"
+ARGS=()
+
+# Parse flags
+for arg in "$@"; do
+    if [ "$arg" = "--plan" ]; then
+        MODE="plan"
+    else
+        ARGS+=("$arg")
+    fi
+done
+
 # Use "command" as default description if no arguments given
-if [ $# -eq 0 ]; then
+if [ ${#ARGS[@]} -eq 0 ]; then
     DESCRIPTION="command"
 else
-    DESCRIPTION="$(echo "$*" | tr ' ' '_')"
+    DESCRIPTION="$(echo "${ARGS[*]}" | tr ' ' '_')"
 fi
 
 # Get current UTC timestamp in Z format
 TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
-# Create .claude/commands directory if it doesn't exist
-COMMANDS_DIR=".claude/commands"
-if [ ! -d "$COMMANDS_DIR" ]; then
-    mkdir -p "$COMMANDS_DIR"
-    echo "Created directory: $COMMANDS_DIR"
+if [ "$MODE" = "plan" ]; then
+    # Create docs/plans directory
+    PLANS_DIR="docs/plans"
+    REQ_DIR="docs/requirements"
+    mkdir -p "$PLANS_DIR"
+
+    REQ_FILENAME="r_${TIMESTAMP}_${DESCRIPTION}.md"
+    REQ_FILEPATH="${REQ_DIR}/${REQ_FILENAME}"
+    PLAN_FILENAME="p_${TIMESTAMP}_${DESCRIPTION}.md"
+    PLAN_FILEPATH="${PLANS_DIR}/${PLAN_FILENAME}"
+
+    # Create requirement file too
+    mkdir -p "$REQ_DIR"
+    touch "$REQ_FILEPATH"
+    echo "Created: $REQ_FILEPATH"
+
+    cat > "$PLAN_FILEPATH" << PLAN_EOF
+## Source Requirement
+
+This plan is based on the following requirement document:
+
+- [\`${REQ_FILENAME}\`](../requirements/${REQ_FILENAME})
+PLAN_EOF
+
+    echo "Created: $PLAN_FILEPATH"
+else
+    # Create docs/requirements directory
+    REQ_DIR="docs/requirements"
+    mkdir -p "$REQ_DIR"
+
+    FILENAME="r_${TIMESTAMP}_${DESCRIPTION}.md"
+    FILEPATH="${REQ_DIR}/${FILENAME}"
+
+    touch "$FILEPATH"
+    echo "Created: $FILEPATH"
 fi
-
-# Create the markdown file
-FILENAME="${TIMESTAMP}_${DESCRIPTION}.md"
-FILEPATH="${COMMANDS_DIR}/${FILENAME}"
-
-touch "$FILEPATH"
-echo "Created: $FILEPATH"
 SCRIPT_EOF
 
 chmod +x "$INSTALL_DIR/$SCRIPT_NAME"
@@ -81,5 +116,6 @@ echo ""
 echo "=== Installation complete! ==="
 echo ""
 echo "Usage:"
-echo "  cct                -> .claude/commands/2026-02-02T10:00:00Z_command.md"
-echo "  cct create session -> .claude/commands/2026-02-02T10:00:00Z_create_session.md"
+echo "  cct                     -> docs/requirements/r_2026-04-01T10:00:00Z_command.md"
+echo "  cct create session      -> docs/requirements/r_2026-04-01T10:00:00Z_create_session.md"
+echo "  cct --plan create session -> docs/requirements/r_...md + docs/plans/p_...md"
