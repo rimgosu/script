@@ -53,9 +53,15 @@ if [ "$MODE" = "plan" ]; then
     PLAN_FILENAME="p_${TIMESTAMP}_${DESCRIPTION}.md"
     PLAN_FILEPATH="${PLANS_DIR}/${PLAN_FILENAME}"
 
-    # Create requirement file too
+    # Create requirement file with plan link
     mkdir -p "$REQ_DIR"
-    touch "$REQ_FILEPATH"
+    cat > "$REQ_FILEPATH" << REQ_EOF
+## Plan
+
+The implementation plan for this requirement will be written in the following document:
+
+- [\`${PLAN_FILENAME}\`](../plans/${PLAN_FILENAME})
+REQ_EOF
     echo "Created: $REQ_FILEPATH"
 
     cat > "$PLAN_FILEPATH" << PLAN_EOF
