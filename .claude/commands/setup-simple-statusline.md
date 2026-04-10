@@ -8,8 +8,16 @@ input=$(cat)
 
 # ctx used %
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+used_tokens=$(echo "$input" | jq -r '.context_window.used_tokens // empty')
+total_tokens=$(echo "$input" | jq -r '.context_window.total_tokens // empty')
 ctx_str=""
-[ -n "$used" ] && ctx_str="ctx:$(printf '%.0f' "$used")%"
+if [ -n "$used" ]; then
+  if [ -n "$used_tokens" ] && [ -n "$total_tokens" ]; then
+    ctx_str="ctx:$(printf '%.0f' "$used")%(${used_tokens}/${total_tokens})"
+  else
+    ctx_str="ctx:$(printf '%.0f' "$used")%"
+  fi
+fi
 
 # 5h rate limit with reset countdown
 five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
