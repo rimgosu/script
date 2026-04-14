@@ -40,10 +40,31 @@ if [ -n "$five_pct" ] && [ -n "$five_reset" ]; then
   five_str="5h:$(printf '%.0f' "$five_pct")%(rst:${time_str})"
 fi
 
-# 7d rate limit
+# 7d rate limit with reset countdown
 week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+week_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 week_str=""
-[ -n "$week_pct" ] && week_str="7d:$(printf '%.0f' "$week_pct")%"
+if [ -n "$week_pct" ] && [ -n "$week_reset" ]; then
+  now=$(date +%s)
+  diff=$((week_reset - now))
+  if [ "$diff" -le 0 ]; then
+    time_str="now"
+  else
+    d=$((diff / 86400))
+    h=$(((diff % 86400) / 3600))
+    m=$(((diff % 3600) / 60))
+    if [ "$d" -gt 0 ]; then
+      time_str="${d}d${h}h"
+    elif [ "$h" -gt 0 ]; then
+      time_str="${h}h${m}m"
+    else
+      time_str="${m}m"
+    fi
+  fi
+  week_str="7d:$(printf '%.0f' "$week_pct")%(rst:${time_str})"
+elif [ -n "$week_pct" ]; then
+  week_str="7d:$(printf '%.0f' "$week_pct")%"
+fi
 
 # account (Claude Code logged-in email)
 acct=$(claude auth status 2>/dev/null | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
@@ -58,7 +79,7 @@ model=$(echo "$input" | jq -r '.model.display_name // empty')
 
 # assemble — skip empty parts
 parts=""
-for p in "$ctx_str" "$five_str" "$week_str" "$acct" "$dir" "$model"; do
+for p in "$five_str" "$week_str" "$acct" "$model" "$ctx_str" "$dir"; do
   [ -n "$p" ] && parts="${parts:+$parts | }$p"
 done
 
