@@ -1,10 +1,11 @@
-명령어 묶음
+자주 사용하는 명령어 묶음
+
 ## user 추가
 
 ```bash
 sudo useradd -m rimgosu
 sudo passwd rimgosu
-sudo usermod -aG sudo rimgosu
+sudo usermod -aG sudo rimgosu # docker 같이 자주 사용하는 것도 권한 추가
 ```
 
 ## install-docker-ubuntu
@@ -23,4 +24,12 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-do
 
 ```sh
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-zsh.sh | bash
+```
+
+## install claude code
+
+- install
+
+```sh
+curl -fsSL https://claude.ai/install.sh | bash
 ```
