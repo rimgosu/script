@@ -26,6 +26,16 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-do
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-zsh.sh | bash
 ```
 
+## install-nvm
+
+zsh 환경에서 nvm 설치 및 `.nvmrc` 자동 로드 설정
+
+- install
+
+```sh
+curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-nvm.sh | zsh
+```
+
 ## install claude code
 
 - install
