@@ -36,10 +36,16 @@ zsh 환경에서 nvm 설치 및 `.nvmrc` 자동 로드 설정
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-nvm.sh | zsh
 ```
 
-## install claude code
+## install another apps
 
-- install
+- install claude code
 
 ```sh
 curl -fsSL https://claude.ai/install.sh | bash
+```
+
+- install tailscale
+
+```sh
+curl -fsSL https://tailscale.com/install.sh | sh
 ```
