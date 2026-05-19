@@ -20,10 +20,16 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-do
 
 ## install-zsh
 
-- install
+- install (ubuntu)
 
 ```sh
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-zsh.sh | bash
+```
+
+- install (mac)
+
+```sh
+curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-zsh-mac.sh | bash
 ```
 
 ## install-nvm
