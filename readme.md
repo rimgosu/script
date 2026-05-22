@@ -55,3 +55,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 ```sh
 curl -fsSL https://tailscale.com/install.sh | sh
 ```
+
+## mac 환경 설정
+
+- 한영키 매핑: <https://soobysu.tistory.com/175>
