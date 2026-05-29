@@ -59,7 +59,7 @@ curl -fsSL https://tailscale.com/install.sh | sh
 ## mac 환경 설정
 
 - 한영키 매핑: <https://soobysu.tistory.com/175>
-- right cmd -> f18
+- right cmd -> f18, application -> fn (globe)
 
 ```sh
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/mac-f18.sh | bash
