@@ -40,6 +40,10 @@ awk '
 {print}
 ' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
 
+# oh-my-zsh 자동 업데이트 알림 끄기 (source 전에 설정돼야 함)
+grep -q "omz:update' mode disabled" ~/.zshrc || \
+    awk '!x && /source \$ZSH\/oh-my-zsh\.sh/ {print "zstyle '\'':omz:update'\'' mode disabled"; x=1} {print}' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
+
 grep -q 'LC_ALL=ko_KR.UTF-8' ~/.zshrc || echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.zshrc
 grep -q 'GH_AUTH_TOKEN_STORE=file' ~/.zshrc || echo 'export GH_AUTH_TOKEN_STORE=file' >> ~/.zshrc
 grep -q "PROMPT='%n@%m '" ~/.zshrc || cat >> ~/.zshrc << 'EOF'

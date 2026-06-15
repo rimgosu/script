@@ -23,6 +23,10 @@ awk '
 {print}
 ' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
 
+# oh-my-zsh 자동 업데이트 알림 끄기 (source 전에 설정돼야 함)
+grep -q "omz:update' mode disabled" ~/.zshrc || \
+    awk '!x && /source \$ZSH\/oh-my-zsh\.sh/ {print "zstyle '\'':omz:update'\'' mode disabled"; x=1} {print}' ~/.zshrc > ~/.zshrc.tmp && mv ~/.zshrc.tmp ~/.zshrc
+
 if [ -n "$SUDO_USER" ]; then
     chown $SUDO_USER ~/.zshrc
 fi
