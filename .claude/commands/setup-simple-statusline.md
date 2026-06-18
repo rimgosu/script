@@ -69,10 +69,14 @@ fi
 # account (Claude Code logged-in email)
 acct=$(claude auth status 2>/dev/null | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
 
-# project folder (basename)
+# project folder (basename) + git branch
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // empty')
 [ -z "$cwd" ] && cwd=$(echo "$input" | jq -r '.cwd // empty')
 dir=$(basename "$cwd")
+branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)
+if [ -n "$branch" ] && [ "$branch" != "HEAD" ]; then
+  dir="${dir} (${branch})"
+fi
 
 # model
 model=$(echo "$input" | jq -r '.model.display_name // empty')
