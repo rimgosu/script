@@ -42,6 +42,17 @@ zsh 환경에서 nvm 설치 및 `.nvmrc` 자동 로드 설정
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-nvm.sh | zsh
 ```
 
+## install-cmux-browser-hook
+
+Claude Code가 브라우저 작업 시 `claude-in-chrome` MCP 대신 `cmux browser` CLI를 쓰도록
+강제하는 PreToolUse 훅 설치 (`~/.claude/settings.json` 병합, 기존 설정 백업)
+
+- install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-cmux-browser-hook.sh | bash
+```
+
 ## install another apps
 
 - install claude code
