@@ -18,14 +18,36 @@ command -v jq >/dev/null 2>&1 || { echo "jq가 필요합니다. (brew install jq
 
 mkdir -p "$HOOKS_DIR"
 
-# 1. 훅 스크립트 작성: claude-in-chrome MCP 호출을 deny 하고 cmux 사용법을 안내한다.
+# 1. 훅 스크립트 작성: cmux 세션에서만 claude-in-chrome MCP 호출을 deny 하고 cmux 사용법을 안내한다.
 cat > "$HOOK_PATH" << 'HOOK'
 #!/bin/bash
 # Claude Code PreToolUse hook
+# cmux 앱 surface 안에서 cmux 브라우저가 "실제로" 동작할 때에만
 # claude-in-chrome MCP 호출을 차단하고 cmux browser CLI로 유도한다.
+# 그 외(예: cmux env만 새어든 VSCode 통합 터미널, 소켓 broken pipe 등)에는
+# MCP를 그대로 허용해서 그냥 Chrome으로 떨어지게 한다.
 
 cat > /dev/null  # stdin(tool 호출 페이로드) 비우기
 
+CMUX_BIN="${CMUX_CLAUDE_HOOK_CMUX_BIN:-cmux}"
+
+# 1) cmux 세션 env 자체가 없으면 → Chrome(MCP) 허용
+[ -n "${CMUX_WORKSPACE_ID:-}" ] || exit 0
+
+# 2) cmux env가 있어도 실제 터미널이 cmux/ghostty가 아니면(=다른 터미널에 env만 새어든 경우)
+#    cmux 브라우저가 동작하지 않으므로 → Chrome(MCP) 허용.
+#    VSCode·iTerm·Apple Terminal 등에서 cmux env를 물려받은 케이스를 거른다.
+[ -n "${VSCODE_INJECTION:-}" ] && exit 0
+case "${TERM_PROGRAM:-}" in
+  vscode|iTerm.app|Apple_Terminal|Hyper|WezTerm) exit 0 ;;
+esac
+
+# 3) cmux 소켓이 실제로 응답하지 않으면(broken pipe 등) → Chrome(MCP) 허용
+"$CMUX_BIN" ping >/dev/null 2>&1 || exit 0
+# 4) cmux 브라우저 기능이 비활성이면 → Chrome(MCP) 허용
+[ "$("$CMUX_BIN" browser status 2>/dev/null)" = "enabled" ] || exit 0
+
+# 여기까지 왔으면 cmux로 브라우저 작업이 가능하므로 MCP 호출을 막고 cmux로 유도한다.
 cat << 'JSON'
 {
   "hookSpecificOutput": {
