@@ -80,5 +80,8 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/mac-f18.sh
 
 ```sh
 /plugin marketplace add rimgosu/worktree-marketplace
+```
+
+```sh
 /plugin install worktree-plugin@worktree-tools
 ```
