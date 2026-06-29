@@ -27,7 +27,7 @@ ToolSearch query "select:mcp__rimnote__list_projects,mcp__rimnote__set_active_pr
 
 - **질문 번호**: "질문 N:" 또는 "N/65" 형태 → 제목의 `[N/65]`에 사용
 - **문제 본문**: 시나리오 설명 + 마지막 질문 문장. "(Select three)" 등 선택 개수도 보존
-- **보기**: 각 선택지. 원문이 영어면 한국어로 자연스럽게 번역하되 서비스명·포트·속성명은 원문 유지
+- **보기**: 각 선택지. 번역·요약하지 말고 **원문 그대로** 옮긴다
 - **정답**: "정답" / "Correct option(s)"로 표시된 항목 → 보기의 A·B·C… 라벨로 매핑
 - **해설**: "전반적인 설명"의 Correct/Incorrect options 내용
 - **도메인**: "도메인" 항목 (예: Design Secure Architectures)
@@ -83,9 +83,10 @@ ToolSearch query "select:mcp__rimnote__list_projects,mcp__rimnote__set_active_pr
 
 ## 규칙
 
+1. **문제와 보기를 원본 그대로 보존할 것.** 문장을 번역·요약·재구성하지 말고, 붙여넣은 원문 그대로 옮긴다.
 - **보기 체크박스는 절대 미리 체크하지 않는다.** 정답이 보이면 복습이 안 된다.
 - 정답·해설은 반드시 `<details><summary>…</summary>` **토글 안에 가린다.**
 - 보기 라벨은 A, B, C… 순서로 붙이고, 정답/오답 노트에서 이 라벨로 참조한다.
-- 영어 원문은 한국어로 번역하되 **서비스명(SQS, Kinesis…), 포트 번호, 속성명(Group ID…)은 원문 유지**.
+- **문제·보기는 원문 그대로** 두고, 번역은 해설/오답 노트 등 설명 영역에만 적용한다 (서비스명·포트·속성명은 원문 유지).
 - `save_to_rimnote` 호출 시 한국어 `keywords`를 함께 넣어 검색이 잘 되게 한다.
 - 저장 후 노트 URL을 사용자에게 알려주고, 정답/함정 핵심을 2~3줄로 요약한다.
