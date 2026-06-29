@@ -75,3 +75,10 @@ curl -fsSL https://tailscale.com/install.sh | sh
 ```sh
 curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/mac-f18.sh | bash
 ```
+
+## worktree skill
+
+```sh
+/plugin marketplace add rimgosu/worktree-marketplace
+/plugin install worktree-plugin@worktree-tools
+```
