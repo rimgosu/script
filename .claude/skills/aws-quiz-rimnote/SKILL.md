@@ -1,9 +1,9 @@
 ---
-name: saa-quiz-note
+name: aws-quiz-rimnote
 description: Udemy의 AWS SAA(Solutions Architect Associate) 연습 문제 텍스트를 붙여넣으면, 문제·보기(빈 체크박스)·정답/해설(토글) 형식으로 정리해 rimnote "aws saa" 프로젝트에 저장한다. 사용자가 Udemy 연습 모드 문제 화면을 통째로 복사해 정리/저장을 요청할 때 사용.
 ---
 
-# SAA Quiz Note
+# AWS Quiz → Rimnote
 
 Udemy "Practice Exams | AWS Certified Solutions Architect Associate" 연습 모드 문제를
 복습용 노트로 정리해 **rimnote "aws saa" 프로젝트**에 저장하는 스킬.
