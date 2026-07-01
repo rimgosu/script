@@ -95,13 +95,23 @@ UI 작업이 아니면 이 단계 전체를 건너뛴다.
 
 ## 6. PR 생성 (특이사항 2: 이어서 작업 vs 새 PR)
 
-먼저 이 흐름에 **이미 열려 있던 PR/worktree가 있는지** 판단한다:
+이어서 작업(보강/수정) 요청이면 **커밋하기 전에 반드시** 직전 브랜치의 머지 여부를
+먼저 확인한다. 이 명령을 실행하지 않고 기존 브랜치에 이어서 push하는 것을 금지한다:
 
-- **직전 작업의 PR이 이미 머지됨** → 최신 `<target>`에서 새 worktree를 따고(3단계) 새 PR을 만든다.
-- **직전 PR이 아직 머지 안 됨 + 이번 요청이 그 작업의 연속(보강/수정)** →
+```bash
+gh pr view <직전-work-branch> --json state,mergedAt,url
+```
+
+출력에 따라 분기한다:
+
+- **`state`가 `MERGED` (또는 `mergedAt`이 null 아님)** → 이미 머지됐으므로 그 브랜치에
+  절대 이어서 push하지 않는다. 최신 `<target>`을 fetch(2단계)한 뒤 **새 worktree를 따고**(3단계)
+  **새 PR**을 만든다.
+- **`state`가 `OPEN` + 이번 요청이 그 작업의 연속(보강/수정)** →
   기존 worktree에서 이어서 커밋하고 push만 한다. PR은 새로 만들지 않고 기존 PR이 갱신된다.
-- **직전 PR이 아직 머지 안 됨 + 이번 요청이 별개의 새 작업** →
+- **`state`가 `OPEN` + 이번 요청이 별개의 새 작업** →
   새 worktree(3단계)에서 새 PR을 만든다.
+- **직전 브랜치의 PR이 없으면**(`gh pr view`가 실패) → 새 작업으로 보고 새 worktree/새 PR.
 
 애매하면 사용자에게 "기존 PR #N에 이어서 할까요, 새 PR로 갈까요?" 한 줄로 확인한다.
 
@@ -114,8 +124,6 @@ gh pr create --base <target> --head <work-branch> \
 ```
 
 PR 본문에는 변경 요약 + (UI면) 스크린샷 이미지를 포함한다.
-
-기존 PR 확인: `gh pr list --head <work-branch> --state all` / 머지 여부: `gh pr view <work-branch> --json state,mergedAt`
 
 ## 마무리
 
