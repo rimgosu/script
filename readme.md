@@ -85,19 +85,3 @@ curl https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/mac-f18.sh
 ```sh
 /plugin install worktree-plugin@worktree-tools
 ```
-
-## aws-quiz-rimnote skill
-
-Udemy AWS SAA 연습 문제를 붙여넣으면 문제·보기(빈 체크박스)·정답/해설(토글) 형식으로
-정리해 rimnote "aws saa" 프로젝트에 저장하는 Claude Code 스킬.
-(rimnote MCP 서버가 연결돼 있어야 한다.)
-
-- install (user scope — 다른 컴퓨터에서도 모든 프로젝트에 적용)
-
-```sh
-mkdir -p ~/.claude/skills/aws-quiz-rimnote
-curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/.claude/skills/aws-quiz-rimnote/SKILL.md \
-  -o ~/.claude/skills/aws-quiz-rimnote/SKILL.md
-```
-
-- 또는 이 레포를 클론한 디렉터리 안에서는 `.claude/skills/aws-quiz-rimnote`가 자동으로 인식된다.
