@@ -85,11 +85,18 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
    git add screenshots && git commit -m "assets: <work-branch> 스크린샷"
    git push -u origin assets/<work-branch>
    ```
-3. raw URL을 만든다 (owner/repo는 `gh repo view --json nameWithOwner -q .nameWithOwner`):
-   ```
-   https://raw.githubusercontent.com/<owner>/<repo>/assets/<work-branch>/screenshots/<file>.png
-   ```
-4. 이 raw URL을 PR 본문에 `![설명](URL)` 로 넣는다.
+3. **레포 공개 여부에 따라 URL 형식을 정한다** (`gh repo view --json visibility -q .visibility`,
+   owner/repo는 `gh repo view --json nameWithOwner -q .nameWithOwner`):
+   - **PUBLIC** → raw URL을 `![설명](URL)` 로 인라인 임베드:
+     ```
+     https://raw.githubusercontent.com/<owner>/<repo>/assets/<work-branch>/screenshots/<file>.png
+     ```
+   - **PRIVATE** → raw URL은 GitHub의 camo 이미지 프록시가 비인증으로 fetch해서 404로 깨진다.
+     인라인 임베드는 불가능하므로 blob URL을 **일반 링크**(`[📸 설명](URL)`)로 넣는다
+     (클릭하면 로그인된 뷰어에게 보인다):
+     ```
+     https://github.com/<owner>/<repo>/blob/assets/<work-branch>/screenshots/<file>.png
+     ```
 
 UI 작업이 아니면 이 단계 전체를 건너뛴다.
 
