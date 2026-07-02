@@ -85,19 +85,16 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
    git add screenshots && git commit -m "assets: <work-branch> 스크린샷"
    git push -u origin assets/<work-branch>
    ```
-3. **레포 공개 여부에 따라 URL 형식을 정한다** (`gh repo view --json visibility -q .visibility`,
-   owner/repo는 `gh repo view --json nameWithOwner -q .nameWithOwner`):
-   - **PUBLIC** → raw URL을 `![설명](URL)` 로 인라인 임베드:
-     ```
-     https://raw.githubusercontent.com/<owner>/<repo>/assets/<work-branch>/screenshots/<file>.png
-     ```
-   - **PRIVATE** → 이미지 문법(`![설명](URL)`)을 쓰면 안 된다. PR 본문의 이미지는 GitHub의
-     camo 프록시가 **비인증**으로 fetch하는데 private repo URL은 404라 깨진 이미지로 나온다
-     (raw든 blob이든 동일). 인라인 임베드는 수동 드래그&드롭 업로드 말고는 방법이 없으므로,
-     blob URL을 `!` 없는 **일반 링크**로 넣는다 (클릭하면 로그인된 뷰어에게 보인다):
-     ```markdown
-     [📸 이미지 설명](https://github.com/<owner>/<repo>/blob/assets/<work-branch>/screenshots/<file>.png)
-     ```
+3. push한 assets 브랜치의 **커밋 SHA**로 raw URL을 만들어 `![설명](URL)` 로 인라인 임베드한다
+   (owner/repo는 `gh repo view --json nameWithOwner -q .nameWithOwner`, SHA는 assets 브랜치에서
+   `git rev-parse HEAD`):
+   ```markdown
+   ![이미지 설명](https://github.com/<owner>/<repo>/raw/<커밋SHA>/screenshots/<file>.png)
+   ```
+   - **private repo여도 인라인 렌더링 된다**: github.com 자체 호스팅 이미지는 GitHub이 로그인
+     뷰어의 권한으로 단기 토큰을 붙여 렌더한다 (camo 프록시는 외부 도메인 이미지에만 적용).
+   - ref는 브랜치명이 아니라 **커밋 SHA**를 쓴다. `assets/<work-branch>`처럼 슬래시 든 브랜치명은
+     raw URL에서 ref/경로 구분이 모호해 깨질 수 있고, SHA는 불변이라 안전하다.
 
 UI 작업이 아니면 이 단계 전체를 건너뛴다.
 
