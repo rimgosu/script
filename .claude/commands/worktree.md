@@ -91,11 +91,12 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
      ```
      https://raw.githubusercontent.com/<owner>/<repo>/assets/<work-branch>/screenshots/<file>.png
      ```
-   - **PRIVATE** → raw URL은 GitHub의 camo 이미지 프록시가 비인증으로 fetch해서 404로 깨진다.
-     인라인 임베드는 불가능하므로 blob URL을 **일반 링크**(`[📸 설명](URL)`)로 넣는다
-     (클릭하면 로그인된 뷰어에게 보인다):
-     ```
-     https://github.com/<owner>/<repo>/blob/assets/<work-branch>/screenshots/<file>.png
+   - **PRIVATE** → 이미지 문법(`![설명](URL)`)을 쓰면 안 된다. PR 본문의 이미지는 GitHub의
+     camo 프록시가 **비인증**으로 fetch하는데 private repo URL은 404라 깨진 이미지로 나온다
+     (raw든 blob이든 동일). 인라인 임베드는 수동 드래그&드롭 업로드 말고는 방법이 없으므로,
+     blob URL을 `!` 없는 **일반 링크**로 넣는다 (클릭하면 로그인된 뷰어에게 보인다):
+     ```markdown
+     [📸 이미지 설명](https://github.com/<owner>/<repo>/blob/assets/<work-branch>/screenshots/<file>.png)
      ```
 
 UI 작업이 아니면 이 단계 전체를 건너뛴다.
