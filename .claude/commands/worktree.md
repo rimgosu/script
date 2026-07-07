@@ -76,8 +76,17 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
 **`assets/` prefix 브랜치**에 이미지만 올린다 (작업 diff를 이미지로 오염시키지 않기 위해).
 
 절차:
-1. 앱을 띄우고 변경된 화면을 스크린샷으로 캡처한다 (`claude-in-chrome`의 `computer`/`gif_creator`,
-   또는 프로젝트의 스크린샷 방법). png 또는 jpg로 저장.
+1. 앱을 띄우고 변경된 화면을 스크린샷으로 캡처한다. png 또는 jpg로 저장.
+   - 1순위: `claude-in-chrome`의 `computer`/`gif_creator`.
+   - **Chrome 확장이 연결 안 되면** ("Browser extension is not connected" 에러) → **cmux browser**로 캡처:
+     ```bash
+     cmux browser open <url>        # surface ref가 출력됨
+     cmux browser <surface> wait --selector <css>   # 화면 준비 대기
+     cmux browser <surface> click <css>             # 필요한 상호작용
+     cmux browser <surface> screenshot --out <path>.png
+     ```
+     자세한 명령은 `cmux browser --help` / `cmux docs browser` 참고.
+   - 둘 다 안 되면 프로젝트의 스크린샷 방법(playwright 등)을 사용.
 2. `assets/<work-branch>` 브랜치를 default branch에서 따서 이미지만 커밋·push:
    ```bash
    git switch -c assets/<work-branch> origin/<target>
