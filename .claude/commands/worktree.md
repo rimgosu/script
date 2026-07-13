@@ -79,9 +79,15 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
 1. 앱을 띄우고(로컬 서버 등) 변경된 화면을 **playwright**로 캡처한다. headless라 창 분할/포커스 문제가
    없고 뷰포트 크기를 정확히 지정할 수 있다.
    ```bash
+   # 데스크톱
    npx --yes playwright screenshot --viewport-size=1440,900 --full-page \
-     --wait-for-selector <css> <url> <path>.png
+     --wait-for-selector <css> <url> <path>-desktop.png
+   # 모바일 (반응형/모바일 조건이 있는 화면이면 반드시 같이 캡처)
+   npx --yes playwright screenshot --device="iPhone 13" --full-page \
+     --wait-for-selector <css> <url> <path>-mobile.png
    ```
+   - **모바일 조건 확인**: 변경 화면에 미디어쿼리/모바일 분기(반응형 레이아웃, 모바일 전용 UI)가
+     있으면 데스크톱·모바일 두 장 모두 캡처해 PR에 첨부한다. 순수 데스크톱 전용 화면이면 데스크톱만.
    - playwright 브라우저가 없으면 최초 1회 `npx --yes playwright install chromium`.
    - 클릭 등 상호작용이 필요하면 `npx playwright screenshot`만으론 부족하므로, 임시 스크립트로
      `chromium.launch()` → `page.goto` → 상호작용 → `page.screenshot()`를 짜서 실행한다.
