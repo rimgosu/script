@@ -14,10 +14,16 @@ description: playwright로 UI를 캡처해 assets/ 브랜치에 올리고, 그 �
 앱이 떠 있는지 확인하고(안 떠 있으면 로컬 서버 실행), 이슈 대상 화면을 **playwright**로 캡처한다:
 
 ```bash
+# 데스크톱
 npx --yes playwright screenshot --viewport-size=1440,900 --full-page \
-  --wait-for-selector <css> <url> <path>.png
+  --wait-for-selector <css> <url> <path>-desktop.png
+# 모바일 (반응형/모바일 조건이 있는 화면이면 반드시 같이 캡처)
+npx --yes playwright screenshot --device="iPhone 13" --full-page \
+  --wait-for-selector <css> <url> <path>-mobile.png
 ```
 
+- **모바일 조건 확인**: 대상 화면에 미디어쿼리/모바일 분기(반응형 레이아웃, 모바일 전용 UI)가
+  있으면 데스크톱·모바일 두 장 모두 캡처해 이슈에 첨부한다. 순수 데스크톱 전용 화면이면 데스크톱만.
 - playwright 브라우저가 없으면 최초 1회 `npx --yes playwright install chromium`.
 - 클릭 등 상호작용이 필요하면 임시 스크립트로 `chromium.launch()` → `page.goto` → 상호작용 → `page.screenshot()`.
 - 문제 상황을 보여주는 화면을 정확히 잡는다. 필요하면 여러 장.
