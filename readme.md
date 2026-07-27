@@ -53,6 +53,30 @@ Claude Code가 브라우저 작업 시 `claude-in-chrome` MCP 대신 `cmux brows
 curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-cmux-browser-hook.sh | bash
 ```
 
+## install-claude-dir
+
+이 레포의 `.claude/commands`, `.claude/skills` 를 `~/.claude` 로 복사(덮어쓰기).
+항목 단위로만 덮어쓰므로 레포에 없는 **로컬 전용 커맨드/스킬은 그대로 남는다.**
+덮어쓴 항목은 `~/.claude/.install-backup/<타임스탬프>/` 에 백업된다.
+
+- install (clone 불필요)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-claude-dir.sh | bash
+```
+
+- 먼저 무엇이 바뀌는지 확인 (권장)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-claude-dir.sh | bash -s -- --dry-run --diff
+```
+
+> 동기화 방향은 **레포 → `~/.claude` 한쪽뿐**이다. `~/.claude` 에서 직접 고친 커맨드/스킬이 있으면
+> 레포의 구버전으로 덮여쓰므로, 고친 내용은 이 레포에 먼저 커밋해두는 게 좋다.
+
+clone 한 상태면 원격 다운로드 없이 로컬 파일을 쓴다. 그 외 옵션은 `--help` 참고
+(`--ref <branch>`, `--local <dir>`, `--dest <dir>`).
+
 ## install another apps
 
 - install claude code
