@@ -11,7 +11,31 @@ description: playwright로 UI를 캡처해 assets/ 브랜치에 올리고, 그 �
 
 ## 1. 캡처
 
-앱이 떠 있는지 확인하고(안 떠 있으면 로컬 서버 실행), 이슈 대상 화면을 **playwright**로 캡처한다:
+### 1-1. 앱 실행·로그인은 레포 문서를 먼저 찾는다
+
+앱이 떠 있는지 확인한다. 안 떠 있거나 **로그인된 화면이 필요하면, 직접 추측해서 시도하기 전에**
+레포의 프로젝트 문서를 먼저 읽는다. 로컬 인프라 주소·시드 계정·포트 제약 같은 건 레포마다 다르고,
+모르고 시도하면 캡처는 시작도 못 하고 로그인 단계에서 시간을 다 쓴다.
+
+```bash
+ls .claude/skills/ 2>/dev/null          # local-dev, dev-login 류의 스킬
+cat CLAUDE.md 2>/dev/null | head -50
+ls docker-compose*.yml *.env.example 2>/dev/null
+```
+
+- **로그인이 막히면** (401, CORS 오류, 로그인 폼이 안 보임, 소셜 로그인만 있음 등)
+  레포의 스킬/문서에서 **seed 계정으로 로그인하는 방법**을 찾아 그대로 따른다.
+  보통 `prisma seed`(또는 유사한 시드 스크립트)로 만든 테스트 계정 + 세션 저장 스크립트가 준비돼 있다.
+  예: rimnote → `.claude/skills/local-dev/SKILL.md` (`docker-compose.local.yml` → `local:seed` →
+  `dev-login.mjs`로 `storage-state.json` 생성)
+- 문서가 없으면 UI로 회원가입·로그인을 반복 시도하지 말고, **API에 직접 로그인 요청을 보내
+  쿠키/토큰을 받는 경로**를 먼저 확인한다. 그것도 막히면 사용자에게 계정·절차를 물어본다.
+- **이슈 자체가 로그인 문제**라면(로그인이 안 되는 게 현상) 우회하지 말고 그 실패 화면·콘솔·네트워크
+  응답을 그대로 캡처해 이슈에 넣는다.
+
+### 1-2. playwright 캡처
+
+이슈 대상 화면을 **playwright**로 캡처한다:
 
 ```bash
 # 데스크톱
@@ -26,6 +50,9 @@ npx --yes playwright screenshot --device="iPhone 13" --full-page \
   있으면 데스크톱·모바일 두 장 모두 캡처해 이슈에 첨부한다. 순수 데스크톱 전용 화면이면 데스크톱만.
 - playwright 브라우저가 없으면 최초 1회 `npx --yes playwright install chromium`.
 - 클릭 등 상호작용이 필요하면 임시 스크립트로 `chromium.launch()` → `page.goto` → 상호작용 → `page.screenshot()`.
+- **로그인 세션이 필요하면** `--load-storage <file>` 사용. storage 파일은 `--save-storage`로 만들거나,
+  레포에 seed 로그인 스크립트가 있으면 그걸로 만든다 (1-1 참고). 로그인 쿠키가 httpOnly면
+  localStorage에 토큰을 주입하는 우회는 통하지 않으므로 이 방법이 사실상 유일하다.
 - 문제 상황을 보여주는 화면을 정확히 잡는다. 필요하면 여러 장.
 
 ## 2. assets 브랜치에 push
