@@ -19,13 +19,16 @@ Ubuntu LXC를 생성하고 접속까지 세팅하는 스킬.
 
 ## 1. 필수 입력값 확인 (누락 시 반드시 질문)
 
-아래 4가지는 **필수**다. 사용자 요청에서 하나라도 빠졌으면 추측하지 말고
+아래 5가지는 **필수**다. 사용자 요청에서 하나라도 빠졌으면 추측하지 말고
 AskUserQuestion으로 물어본 뒤 진행한다:
 
 1. **CPU** — 코어 수 (예: 4)
 2. **RAM** — 메모리 크기 MB 또는 GB (예: 8G → `--memory 8192`)
 3. **SSD / HDD 크기** — rootfs(SSD) GB + /data(HDD) GB. HDD 0이면 mp0 생략
 4. **LXC host 이름** — 컨테이너 hostname (ssh config 별칭으로도 사용)
+5. **root 비밀번호** — proxmox 웹 UI 콘솔 로그인용. 반드시 물어본다
+   (임의로 정하지 말 것). 기존 컨테이너와 통일하고 싶어하는 경우가 많으니
+   "기존과 동일하게" 같은 답도 그대로 수용한다
 
 swap은 별도 요청 없으면 RAM의 1/4 정도로 기본 설정.
 
@@ -63,11 +66,28 @@ ssh proxmox-rimgosu "pct create <VMID> local:vztmpl/<TEMPLATE> \
 ```
 
 - HDD를 안 쓰면 `--mp0` 줄 생략
-- 콘솔 로그인용 root 비번도 설정한다 (기본 `rimgosu`, 사용자가 지정하면 그 값):
+
+### 3-1. root 비번 설정 (필수)
+
+템플릿 기본값은 root 비번이 **`*`(잠김)** 이라 웹 UI 콘솔에서 뭘 입력해도
+로그인이 안 된다. `--ssh-public-keys`를 넣어도 콘솔은 별개이므로 반드시 설정한다.
+
+비번을 셸 명령줄에 넣으면 `!`, `$`, `` ` `` 등이 셸에 먹히므로 **stdin으로 넘긴다**:
 
 ```bash
-ssh proxmox-rimgosu "pct exec <VMID> -- bash -c 'echo root:<PASSWORD> | chpasswd'"
+ssh proxmox-rimgosu "pct exec <VMID> -- chpasswd" <<< 'root:<PASSWORD>'
 ```
+
+설정 후 해시 대조로 검증한다 (오타·이스케이프 사고 방지, `True`면 성공):
+
+```bash
+ssh proxmox-rimgosu "pct exec <VMID> -- python3 -c \"import crypt,spwd,sys;h=spwd.getspnam('root').sp_pwdp;print(crypt.crypt(sys.stdin.read().strip(),h)==h)\"" <<< '<PASSWORD>'
+```
+
+(Ubuntu 24.04 = python 3.12 기준. `crypt`/`spwd`는 3.13에서 제거되므로
+그보다 최신 템플릿에서는 `chpasswd` 종료코드로만 확인)
+
+기존 컨테이너 비번을 한 번에 통일하려면 `pct list`의 VMID를 순회하며 같은 명령을 돌린다.
 
 ## 4. private IP 확인 및 ~/.ssh/config 갱신
 
