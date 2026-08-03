@@ -60,12 +60,17 @@ ssh proxmox-rimgosu "pct create <VMID> local:vztmpl/<TEMPLATE> \
   --mp0 hdd-thin:<HDD_GB>,mp=/data \
   --cores <CORES> --memory <RAM_MB> --swap <SWAP_MB> \
   --net0 name=eth0,bridge=vmbr0,ip=dhcp \
+  --nameserver "1.1.1.1 8.8.8.8" \
   --unprivileged 1 --features nesting=1 \
   --ssh-public-keys /tmp/ct<VMID>.pub \
   --start 1"
 ```
 
 - HDD를 안 쓰면 `--mp0` 줄 생략
+- `--nameserver`는 **생략하면 안 된다**. 빼면 컨테이너가 호스트의
+  `/etc/resolv.conf`를 상속하는데, proxmox-rimgosu 호스트는 tailscale MagicDNS
+  (`100.100.100.100`)를 쓴다. 컨테이너 안에는 tailscaled가 없으므로 그 DNS는
+  절대 응답하지 않고 `apt update`가 죽는다 (아래 트러블슈팅 참고)
 
 ### 3-1. root 비번 설정 (필수)
 
@@ -133,3 +138,18 @@ ssh -o StrictHostKeyChecking=accept-new <HOSTNAME> "hostname; df -h / /data"
   ```
   (두 번째 줄은 unconfined 후 노출되는 securityfs를 가려 dockerd의 AppArmor 2차 에러를 스킵)
 - `pct exec`에서 IP가 아직 없으면 DHCP 대기 — 몇 초 후 재시도
+- **`apt update`가 `Temporary failure in name resolution`으로 실패** (단
+  `ping 8.8.8.8`은 정상 → 라우팅은 살아있고 DNS만 죽은 것):
+  컨테이너 `/etc/resolv.conf`에 `nameserver 100.100.100.100`(tailscale MagicDNS)만
+  들어있는 경우다. `pct config <VMID>`에 `nameserver`가 없어서 호스트 설정을
+  상속한 것이고, 컨테이너에는 tailscaled가 없으니 응답할 수 없다.
+  호스트 `/etc/resolv.conf`는 건드리지 말고(호스트는 tailscaled가 있어 정상 동작)
+  컨테이너 쪽만 고친다:
+  ```bash
+  # 영구 (재부팅 후에도 유지)
+  ssh proxmox-rimgosu "pct set <VMID> --nameserver '1.1.1.1 8.8.8.8'"
+  # 재부팅 없이 즉시 반영
+  ssh <HOSTNAME> "printf 'nameserver 1.1.1.1\nnameserver 8.8.8.8\n' | sudo tee /etc/resolv.conf"
+  ```
+  DNS 실패로 매달려 있던 이전 `apt update`가 `/var/lib/apt/lists/lock`을 잡고 있으면
+  (`E: Could not get lock ... held by process <PID>`) 그 PID를 kill 후 재시도한다.
