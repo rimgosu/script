@@ -77,6 +77,30 @@ curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/inst
 clone 한 상태면 원격 다운로드 없이 로컬 파일을 쓴다. 그 외 옵션은 `--help` 참고
 (`--ref <branch>`, `--local <dir>`, `--dest <dir>`).
 
+## install-hidpi (mac)
+
+BetterDisplay 없이 HiDPI(레티나식) 스케일 모드를 켜고 끄는 `hidpi` 커맨드.
+
+- install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/install-hidpi.sh | bash
+```
+
+- 사용
+
+```sh
+hidpi status      # 현재 모드 (HiDPI면 exit 0, 아니면 1)
+hidpi toggle      # HiDPI <-> 네이티브 1x
+hidpi on          # HiDPI 켜기 (기본 1920x1080)
+hidpi on 1600x900 # 더 넓게
+hidpi off         # 네이티브 해상도로
+hidpi list        # 선택 가능한 전체 모드
+```
+
+기본 논리 해상도는 `HIDPI_LOGICAL` 환경변수로, 멀티 모니터는 `-d <id>` 로 지정한다.
+제거는 `install-hidpi.sh --uninstall`.
+
 ## install another apps
 
 - install claude code
