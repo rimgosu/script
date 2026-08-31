@@ -84,13 +84,19 @@ fi
 # model
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 
-# assemble — skip empty parts
-parts=""
-for p in "$five_str" "$week_str" "$acct" "$model" "$ctx_str" "$dir"; do
-  [ -n "$p" ] && parts="${parts:+$parts | }$p"
+# assemble — 2줄: (1) 사용량+계정 (2) 모델+컨텍스트+경로. 빈 항목은 건너뛴다
+line1=""
+for p in "$five_str" "$week_str" "$acct"; do
+  [ -n "$p" ] && line1="${line1:+$line1 | }$p"
+done
+line2=""
+for p in "$model" "$ctx_str" "$dir"; do
+  [ -n "$p" ] && line2="${line2:+$line2 | }$p"
 done
 
-printf '%s' "$parts"
+printf '%s' "$line1"
+[ -n "$line1" ] && [ -n "$line2" ] && printf '\n'
+printf '%s' "$line2"
 ```
 
 ## settings.json 설정
