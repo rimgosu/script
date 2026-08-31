@@ -84,13 +84,13 @@ fi
 # model
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 
-# assemble — 2줄: (1) 사용량+계정 (2) 모델+컨텍스트+경로. 빈 항목은 건너뛴다
+# assemble — 2줄: (1) 사용량+컨텍스트 (2) 모델+계정+프로젝트. 빈 항목은 건너뛴다
 line1=""
-for p in "$five_str" "$week_str" "$acct"; do
+for p in "$five_str" "$week_str" "$ctx_str"; do
   [ -n "$p" ] && line1="${line1:+$line1 | }$p"
 done
 line2=""
-for p in "$model" "$ctx_str" "$dir"; do
+for p in "$model" "$acct" "$dir"; do
   [ -n "$p" ] && line2="${line2:+$line2 | }$p"
 done
 
