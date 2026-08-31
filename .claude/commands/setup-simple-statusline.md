@@ -67,7 +67,10 @@ elif [ -n "$week_pct" ]; then
 fi
 
 # account (Claude Code logged-in email)
-acct=$(claude auth status 2>/dev/null | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
+auth=$(claude auth status 2>/dev/null)
+acct=$(printf '%s' "$auth" | jq -r '.email // empty' 2>/dev/null)
+# 구버전 claude는 JSON이 아닌 평문 출력 -> 첫 이메일 하나만 (여러 개면 개행이 섞여 statusline이 깨진다)
+[ -z "$acct" ] && acct=$(printf '%s' "$auth" | grep -m1 -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
 
 # project folder (basename) + git branch
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // empty')
