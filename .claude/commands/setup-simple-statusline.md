@@ -67,7 +67,10 @@ elif [ -n "$week_pct" ]; then
 fi
 
 # account (Claude Code logged-in email)
-acct=$(claude auth status 2>/dev/null | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
+auth=$(claude auth status 2>/dev/null)
+acct=$(printf '%s' "$auth" | jq -r '.email // empty' 2>/dev/null)
+# 구버전 claude는 JSON이 아닌 평문 출력 -> 첫 이메일 하나만 (여러 개면 개행이 섞여 statusline이 깨진다)
+[ -z "$acct" ] && acct=$(printf '%s' "$auth" | grep -m1 -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
 
 # project folder (basename) + git branch
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // empty')
@@ -81,13 +84,19 @@ fi
 # model
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 
-# assemble — skip empty parts
-parts=""
-for p in "$five_str" "$week_str" "$acct" "$model" "$ctx_str" "$dir"; do
-  [ -n "$p" ] && parts="${parts:+$parts | }$p"
+# assemble — 2줄: (1) 사용량+컨텍스트 (2) 모델+계정+프로젝트. 빈 항목은 건너뛴다
+line1=""
+for p in "$five_str" "$week_str" "$ctx_str"; do
+  [ -n "$p" ] && line1="${line1:+$line1 | }$p"
+done
+line2=""
+for p in "$model" "$acct" "$dir"; do
+  [ -n "$p" ] && line2="${line2:+$line2 | }$p"
 done
 
-printf '%s' "$parts"
+printf '%s' "$line1"
+[ -n "$line1" ] && [ -n "$line2" ] && printf '\n'
+printf '%s' "$line2"
 ```
 
 ## settings.json 설정
