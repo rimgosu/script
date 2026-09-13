@@ -61,6 +61,7 @@ ssh proxmox-rimgosu "pct create <VMID> local:vztmpl/<TEMPLATE> \
   --cores <CORES> --memory <RAM_MB> --swap <SWAP_MB> \
   --net0 name=eth0,bridge=vmbr0,ip=dhcp \
   --nameserver "1.1.1.1 8.8.8.8" \
+  --onboot 1 \
   --unprivileged 1 --features nesting=1 \
   --ssh-public-keys /tmp/ct<VMID>.pub \
   --start 1"
@@ -71,6 +72,10 @@ ssh proxmox-rimgosu "pct create <VMID> local:vztmpl/<TEMPLATE> \
   `/etc/resolv.conf`를 상속하는데, proxmox-rimgosu 호스트는 tailscale MagicDNS
   (`100.100.100.100`)를 쓴다. 컨테이너 안에는 tailscaled가 없으므로 그 DNS는
   절대 응답하지 않고 `apt update`가 죽는다 (아래 트러블슈팅 참고)
+- `--onboot 1`도 **생략하면 안 된다**. 기본값이 0이라 빼먹으면 proxmox 호스트가
+  재부팅될 때 그 컨테이너만 조용히 안 올라온다. 컨테이너 안의 서비스가
+  `systemctl enable` 돼 있어도 컨테이너 자체가 꺼져 있으니 소용이 없고,
+  에러도 안 나서 한참 뒤에야 눈치챈다
 
 ### 3-1. root 비번 설정 (필수)
 
@@ -119,11 +124,38 @@ Host <HOSTNAME>
 ssh -o StrictHostKeyChecking=accept-new <HOSTNAME> "hostname; df -h / /data"
 ```
 
+## 4-1. 자동 시작 검증 (필수)
+
+생성 직후 `onboot`이 실제로 박혔는지 확인한다. `pct create` 옵션 오타 등으로
+조용히 빠질 수 있어서, 설정했다고 가정하지 말고 눈으로 본다:
+
+```bash
+ssh proxmox-rimgosu "pct config <VMID> | grep -E '^onboot' || echo 'ONBOOT MISSING'"
+```
+
+빠져 있으면 즉시 채운다:
+
+```bash
+ssh proxmox-rimgosu "pct set <VMID> --onboot 1"
+```
+
+기존 컨테이너까지 한 번에 점검하려면:
+
+```bash
+ssh proxmox-rimgosu 'for i in $(pct list | awk "NR>1{print \$1}"); do \
+  printf "%s %s: %s\n" "$i" "$(pct config $i | sed -n "s/^hostname: //p")" \
+  "$(pct config $i | grep -E "^onboot" || echo MISSING)"; done'
+```
+
+컨테이너 안에서 서비스를 돌린다면 그 서비스도 `systemctl enable <이름>`까지
+해둬야 한다. 둘 중 하나만 돼 있으면 재부팅 후 안 뜬다.
+
 ## 5. 최종 안내 (필수 출력)
 
 작업을 마치면 아래 3가지를 반드시 사용자에게 정리해 보여준다:
 
-1. **LXC 스펙** — VMID, hostname, CPU/RAM/swap, SSD·HDD 크기, unprivileged/nesting 여부
+1. **LXC 스펙** — VMID, hostname, CPU/RAM/swap, SSD·HDD 크기, unprivileged/nesting 여부,
+   `onboot` 설정 여부 (호스트 재부팅 시 자동 시작되는지)
 2. **~/.ssh/config 변경 사항** — 추가/수정된 Host 블록 내용 그대로
 3. **접속 정보** — `ssh <HOSTNAME>` (점프 경유), 직접 IP(`ssh root@<PRIVATE_IP>`,
    tailscale 서브넷 라우터 승인 시), root 비번
@@ -138,6 +170,17 @@ ssh -o StrictHostKeyChecking=accept-new <HOSTNAME> "hostname; df -h / /data"
   ```
   (두 번째 줄은 unconfined 후 노출되는 securityfs를 가려 dockerd의 AppArmor 2차 에러를 스킵)
 - `pct exec`에서 IP가 아직 없으면 DHCP 대기 — 몇 초 후 재시도
+- **호스트 재부팅 후 특정 컨테이너만 안 올라옴**: 십중팔구 그 컨테이너에
+  `onboot`이 없는 것이다. 컨테이너 안 서비스부터 뒤지지 말고 `pct list`로
+  컨테이너 자체가 `stopped`인지 먼저 본다. `stopped`면 위 4-1의 일괄 점검
+  명령으로 `MISSING`인 것들을 찾아 `pct set <VMID> --onboot 1`로 채운다.
+  (컨테이너가 `running`인데 서비스만 안 떠 있다면 그때 컨테이너 안에서
+  `systemctl is-enabled <서비스>`를 확인한다)
+- **`onboot 1`인데도 부팅 때 안 뜸**: 그 컨테이너가 호스트에 없는 장치를
+  물고 있을 수 있다. `pct start <VMID>`를 직접 돌려 에러를 본다
+  (예: GPU 패스스루 `dev0: /dev/kfd` → `Device /dev/kfd does not exist`).
+  이건 onboot 문제가 아니라 장치 문제이므로 `lspci`/`lsmod`로 호스트에
+  장치가 보이는지부터 확인한다
 - **`apt update`가 `Temporary failure in name resolution`으로 실패** (단
   `ping 8.8.8.8`은 정상 → 라우팅은 살아있고 DNS만 죽은 것):
   컨테이너 `/etc/resolv.conf`에 `nameserver 100.100.100.100`(tailscale MagicDNS)만
