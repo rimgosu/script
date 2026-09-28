@@ -3,13 +3,14 @@
 #  - 오른쪽 Cmd(0x7000000e7)    -> F18(0x70000006d)
 #  - Application 키(0x700000065) -> fn/Globe(0xff00000003)
 #  - 오른쪽 Option(0x7000000e6)  -> fn/Globe(0xff00000003)
+#  - japanese_kana(0x700000090) -> fn/Globe(0xff00000003)
 
 mkdir -p /Users/Shared/bin
 
 # 매핑 적용 스크립트 생성
 cat <<'EOF' > /Users/Shared/bin/userkeymapping
 #!/bin/sh
-hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x7000000e7,"HIDKeyboardModifierMappingDst":0x70000006d},{"HIDKeyboardModifierMappingSrc":0x700000065,"HIDKeyboardModifierMappingDst":0xff00000003},{"HIDKeyboardModifierMappingSrc":0x7000000e6,"HIDKeyboardModifierMappingDst":0xff00000003}]}'
+hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x7000000e7,"HIDKeyboardModifierMappingDst":0x70000006d},{"HIDKeyboardModifierMappingSrc":0x700000065,"HIDKeyboardModifierMappingDst":0xff00000003},{"HIDKeyboardModifierMappingSrc":0x7000000e6,"HIDKeyboardModifierMappingDst":0xff00000003},{"HIDKeyboardModifierMappingSrc":0x700000090,"HIDKeyboardModifierMappingDst":0xff00000003}]}'
 EOF
 chmod 755 /Users/Shared/bin/userkeymapping
 
