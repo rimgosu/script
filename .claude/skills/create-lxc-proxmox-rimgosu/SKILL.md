@@ -1,6 +1,6 @@
 ---
 name: create-lxc-proxmox-rimgosu
-description: proxmox-rimgosu 호스트에 SSH로 들어가 Ubuntu LXC를 생성한다. CPU/RAM/SSD·HDD 크기/호스트명을 입력받아 pct create로 컨테이너를 만들고, 발급된 private IP를 ~/.ssh/config에 등록한 뒤 스펙과 접속 정보를 안내한다. 사용자가 "lxc 만들어줘", "proxmox에 컨테이너 생성" 등을 요청할 때 사용.
+description: proxmox-rimgosu 호스트에 SSH로 들어가 Ubuntu LXC를 생성한다. CPU/RAM/SSD·HDD 크기/호스트명을 입력받아 pct create로 컨테이너를 만들고, 발급된 private IP를 ~/.ssh/config에 등록·rimgosu/.ssh repo로 PR을 올린 뒤 스펙과 접속 정보를 안내한다. 사용자가 "lxc 만들어줘", "proxmox에 컨테이너 생성" 등을 요청할 때 사용.
 ---
 
 # create-lxc-proxmox-rimgosu
@@ -124,6 +124,18 @@ Host <HOSTNAME>
 ssh -o StrictHostKeyChecking=accept-new <HOSTNAME> "hostname; df -h / /data"
 ```
 
+### 4-0. ~/.ssh repo로 PR (필수)
+
+`~/.ssh`는 git repo(`rimgosu/.ssh`)라 config 변경은 PR로 남긴다. 접속 검증이 끝나면
+**`~/.ssh/CLAUDE.md`의 "config 변경 시 PR 필수" 절차를 그대로 따른다.** 요약:
+
+- 라이브 `~/.ssh`에서 브랜치를 바꾸지 않는다 (config가 되돌아가 접속이 끊김)
+- `umask 077`로 `origin/main` 기준 worktree를 따고, `git diff -- config | git -C <wt> apply`로
+  이번 변경만 옮겨 커밋 → push → `gh pr create -R rimgosu/.ssh --base main`
+- 브랜치명 `chore/ssh-config-<HOSTNAME>`, 제목 `config: <HOSTNAME> 추가`
+  (기존 Host의 HostName만 바꿨으면 `config: <HOSTNAME> HostName 갱신`)
+- PR 생성 후 worktree는 바로 삭제 (개인키가 같이 체크아웃되므로)
+
 ## 4-1. 자동 시작 검증 (필수)
 
 생성 직후 `onboot`이 실제로 박혔는지 확인한다. `pct create` 옵션 오타 등으로
@@ -156,7 +168,7 @@ ssh proxmox-rimgosu 'for i in $(pct list | awk "NR>1{print \$1}"); do \
 
 1. **LXC 스펙** — VMID, hostname, CPU/RAM/swap, SSD·HDD 크기, unprivileged/nesting 여부,
    `onboot` 설정 여부 (호스트 재부팅 시 자동 시작되는지)
-2. **~/.ssh/config 변경 사항** — 추가/수정된 Host 블록 내용 그대로
+2. **~/.ssh/config 변경 사항** — 추가/수정된 Host 블록 내용 그대로 + `rimgosu/.ssh` PR URL
 3. **접속 정보** — `ssh <HOSTNAME>` (점프 경유), 직접 IP(`ssh root@<PRIVATE_IP>`,
    tailscale 서브넷 라우터 승인 시), root 비번
 
