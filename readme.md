@@ -77,6 +77,11 @@ curl -fsSL https://raw.githubusercontent.com/rimgosu/script/refs/heads/main/inst
 clone 한 상태면 원격 다운로드 없이 로컬 파일을 쓴다. 그 외 옵션은 `--help` 참고
 (`--ref <branch>`, `--local <dir>`, `--dest <dir>`).
 
+## claude-rc-tmux (skill)
+
+pve-claude-rc 에 새 tmux 세션으로 `claude --dangerously-skip-permissions --remote-control <이름>` 을 띄운다.
+`install-claude-dir.sh` 로 설치한 뒤 "claude rc 하나 띄워줘" 라고 요청하면 된다.
+
 ## install-hidpi (mac)
 
 BetterDisplay 없이 HiDPI(레티나식) 스케일 모드를 켜고 끄는 `hidpi` 커맨드.
