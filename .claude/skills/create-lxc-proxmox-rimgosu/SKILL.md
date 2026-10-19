@@ -1,6 +1,6 @@
 ---
 name: create-lxc-proxmox-rimgosu
-description: proxmox-rimgosu 호스트에 SSH로 들어가 Ubuntu LXC를 생성한다. CPU/RAM/SSD·HDD 크기/호스트명을 입력받아 pct create로 컨테이너를 만들고, 발급된 private IP를 ~/.ssh/config에 등록·rimgosu/.ssh repo로 PR을 올린 뒤 스펙과 접속 정보를 안내한다. 사용자가 "lxc 만들어줘", "proxmox에 컨테이너 생성" 등을 요청할 때 사용.
+description: proxmox-rimgosu 호스트에 SSH로 들어가 Ubuntu LXC를 생성한다. CPU/RAM/SSD·HDD 크기/호스트명을 입력받아 pct create로 컨테이너를 만들고, 발급된 private IP를 ~/.ssh/rimgosu/config(개인용)에 등록·rimgosu/.ssh repo로 PR을 올린 뒤 스펙과 접속 정보를 안내한다. 사용자가 "lxc 만들어줘", "proxmox에 컨테이너 생성" 등을 요청할 때 사용.
 ---
 
 # create-lxc-proxmox-rimgosu
@@ -99,13 +99,14 @@ ssh proxmox-rimgosu "pct exec <VMID> -- python3 -c \"import crypt,spwd,sys;h=spw
 
 기존 컨테이너 비번을 한 번에 통일하려면 `pct list`의 VMID를 순회하며 같은 명령을 돌린다.
 
-## 4. private IP 확인 및 ~/.ssh/config 갱신
+## 4. private IP 확인 및 ~/.ssh/rimgosu/config 갱신
 
 ```bash
 ssh proxmox-rimgosu "sleep 5; pct exec <VMID> -- ip -br a | grep eth0"
 ```
 
-DHCP로 받은 IP(예: 192.168.200.141)를 `~/.ssh/config`에 등록한다.
+DHCP로 받은 IP(예: 192.168.200.141)를 `~/.ssh/rimgosu/config`에 등록한다.
+(`~/.ssh/config`는 Include만 있고 Host는 `rimgosu/config`=개인용, `crystarvision/config`=회사용으로 나뉜다. proxmox-rimgosu LXC는 개인용.)
 **같은 Host 별칭이 이미 있으면 새로 추가하지 말고 그 블록의 HostName만 갱신**한다:
 
 ```
@@ -130,7 +131,7 @@ ssh -o StrictHostKeyChecking=accept-new <HOSTNAME> "hostname; df -h / /data"
 **`~/.ssh/CLAUDE.md`의 "config 변경 시 PR 필수" 절차를 그대로 따른다.** 요약:
 
 - 라이브 `~/.ssh`에서 브랜치를 바꾸지 않는다 (config가 되돌아가 접속이 끊김)
-- `umask 077`로 `origin/main` 기준 worktree를 따고, `git diff -- config | git -C <wt> apply`로
+- `umask 077`로 `origin/main` 기준 worktree를 따고, `git diff -- rimgosu/config | git -C <wt> apply`로
   이번 변경만 옮겨 커밋 → push → `gh pr create -R rimgosu/.ssh --base main`
 - 브랜치명 `chore/ssh-config-<HOSTNAME>`, 제목 `config: <HOSTNAME> 추가`
   (기존 Host의 HostName만 바꿨으면 `config: <HOSTNAME> HostName 갱신`)
