@@ -54,6 +54,36 @@ npx --yes playwright screenshot --device="iPhone 13" --full-page \
   레포에 seed 로그인 스크립트가 있으면 그걸로 만든다 (1-1 참고). 로그인 쿠키가 httpOnly면
   localStorage에 토큰을 주입하는 우회는 통하지 않으므로 이 방법이 사실상 유일하다.
 - 문제 상황을 보여주는 화면을 정확히 잡는다. 필요하면 여러 장.
+- **회귀(예전엔 정상이었는데 깨진 경우)면** 정상이던 시점과 비교 캡처한다.
+  마지막 정상 ref(태그/커밋/배포 브랜치)를 임시 worktree로 따서
+  (`git worktree add /tmp/ui-issue-good <ref>`) 같은 URL·뷰포트로 `-good.png`,
+  현재 화면을 `-current.png`로 찍고, 이슈 본문에 `| 정상 (<ref>) | 현재 |` 표로 나란히 붙인다.
+  정상 ref를 모르면 현재 화면만 찍는다. 다 쓴 worktree는 `git worktree remove`로 지운다.
+
+### 1-3. 기획/개선 제안이면 before / after 캡처
+
+이슈가 버그 신고가 아니라 **"이렇게 바꾸자"는 기획/제안**이면 현재 화면(before)과
+제안 화면(after)을 같이 첨부한다. 아직 구현이 없으므로 after는 **목업**으로 만든다.
+
+- **before**: 1-2와 같은 방법으로 현재 화면을 `<name>-before-desktop.png`로 캡처.
+- **after**: 같은 URL·뷰포트·디바이스·로그인 상태에서, 아래 중 가벼운 방법으로 제안 내용을
+  입힌 뒤 `<name>-after-desktop.png`로 캡처한다.
+  - 문구/색/간격/숨김/배치 같은 단순 변경 → 임시 playwright 스크립트에서
+    `page.addStyleTag({ content: '<css>' })` 또는 `page.evaluate(() => { /* DOM 수정 */ })`
+    로 화면에 직접 입힌 뒤 `page.screenshot()`.
+  - 컴포넌트 추가처럼 DOM 주입으로 표현이 어려운 변경 → 임시 worktree
+    (`git worktree add /tmp/ui-issue-mock origin/<default>`)에서 최소한으로 프로토타입을
+    수정해 띄우고 캡처한 뒤, **커밋하지 않고** `git worktree remove --force`로 버린다.
+- 모바일 조건이 있으면 before/after 모두 모바일도 찍는다.
+- 이슈 본문에 표로 나란히 붙이고, after가 목업이라는 걸 명시한다:
+
+  ```markdown
+  | Before (현재) | After (제안 · 목업) |
+  |---|---|
+  | ![before](https://github.com/<owner>/<repo>/raw/<sha>/screenshots/<name>-before-desktop.png) | ![after](https://github.com/<owner>/<repo>/raw/<sha>/screenshots/<name>-after-desktop.png) |
+  ```
+
+- 라벨은 `ui` + (있으면) `enhancement`.
 
 ## 2. assets 브랜치에 push
 

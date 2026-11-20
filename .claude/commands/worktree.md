@@ -69,6 +69,13 @@ git worktree add -b <work-branch> <worktree-path> origin/<target>
 
 프롬프트에 나온 작업을 worktree 안에서 진행한다. 커밋은 논리 단위로 나눠서 한다.
 
+### 4-0. UI 작업이면 변경 전(before) 화면부터 캡처
+
+코드를 수정하기 전에, 방금 딴 worktree(= `origin/<target>` 상태)에서 앱을 띄워
+대상 화면을 5단계와 **같은 URL·뷰포트·디바이스**로 캡처해 `<name>-before-desktop.png`
+(모바일 조건이면 `-before-mobile.png`도)로 저장해 둔다. 작업을 시작한 뒤에는 before를
+다시 얻기 번거로우므로 이 단계를 건너뛰지 않는다.
+
 ### 4-1. 앱을 띄우거나 로그인이 필요하면 레포 문서를 먼저 찾는다
 
 앱 실행·스크린샷·로그인이 필요한 작업이면, **직접 추측해서 시도하기 전에** worktree 안의
@@ -101,13 +108,15 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
    ```bash
    # 데스크톱
    npx --yes playwright screenshot --viewport-size=1440,900 --full-page \
-     --wait-for-selector <css> <url> <path>-desktop.png
+     --wait-for-selector <css> <url> <name>-after-desktop.png
    # 모바일 (반응형/모바일 조건이 있는 화면이면 반드시 같이 캡처)
    npx --yes playwright screenshot --device="iPhone 13" --full-page \
-     --wait-for-selector <css> <url> <path>-mobile.png
+     --wait-for-selector <css> <url> <name>-after-mobile.png
    ```
    - **모바일 조건 확인**: 변경 화면에 미디어쿼리/모바일 분기(반응형 레이아웃, 모바일 전용 UI)가
      있으면 데스크톱·모바일 두 장 모두 캡처해 PR에 첨부한다. 순수 데스크톱 전용 화면이면 데스크톱만.
+   - 4-0에서 찍은 before와 **같은 URL·뷰포트·디바이스·로그인 상태·데이터**로 찍는다.
+     조건이 다르면 비교가 무의미하다.
    - playwright 브라우저가 없으면 최초 1회 `npx --yes playwright install chromium`.
    - 클릭 등 상호작용이 필요하면 `npx playwright screenshot`만으론 부족하므로, 임시 스크립트로
      `chromium.launch()` → `page.goto` → 상호작용 → `page.screenshot()`를 짜서 실행한다.
@@ -124,9 +133,13 @@ GitHub에서 이미지가 보이려면 **레포에 실제 커밋된 raw URL**이
 3. push한 assets 브랜치의 **커밋 SHA**로 raw URL을 만들어 `![설명](URL)` 로 인라인 임베드한다
    (owner/repo는 `gh repo view --json nameWithOwner -q .nameWithOwner`, SHA는 assets 브랜치에서
    `git rev-parse HEAD`):
+   before/after를 표로 나란히 붙인다:
    ```markdown
-   ![이미지 설명](https://github.com/<owner>/<repo>/raw/<커밋SHA>/screenshots/<file>.png)
+   | Before | After |
+   |---|---|
+   | ![before](https://github.com/<owner>/<repo>/raw/<커밋SHA>/screenshots/<name>-before-desktop.png) | ![after](https://github.com/<owner>/<repo>/raw/<커밋SHA>/screenshots/<name>-after-desktop.png) |
    ```
+   모바일도 찍었으면 같은 형식으로 행을 하나 더 추가한다.
    - **private repo여도 인라인 렌더링 된다**: github.com 자체 호스팅 이미지는 GitHub이 로그인
      뷰어의 권한으로 단기 토큰을 붙여 렌더한다 (camo 프록시는 외부 도메인 이미지에만 적용).
    - ref는 브랜치명이 아니라 **커밋 SHA**를 쓴다. `assets/<work-branch>`처럼 슬래시 든 브랜치명은
